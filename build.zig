@@ -73,35 +73,35 @@ fn liblua(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin
 }
 
 fn lua(b: *std.Build, target: std.Build.ResolvedTarget, optimize: std.builtin.OptimizeMode) *std.Build.Step.Compile {
-    const lib = b.addExecutable(.{
+    const exe = b.addExecutable(.{
         .name = "lua",
         .target = target,
         .optimize = optimize,
     });
-    lib.pie = true;
+    exe.pie = true;
     switch (optimize) {
-        .Debug, .ReleaseSafe => lib.bundle_compiler_rt = true,
-        else => lib.root_module.strip = true,
+        .Debug, .ReleaseSafe => exe.bundle_compiler_rt = true,
+        else => exe.root_module.strip = true,
     }
-    if (lib.rootModuleTarget().os.tag == .linux) {
-        lib.defineCMacro("LUA_USE_LINUX", null);
-        lib.defineCMacro("LUA_USE_LINUX", null);
+    if (exe.rootModuleTarget().os.tag == .linux) {
+        exe.defineCMacro("LUA_USE_LINUX", null);
+        exe.defineCMacro("LUA_USE_LINUX", null);
     }
-    lib.addCSourceFiles(.{
+    exe.addCSourceFiles(.{
         .files = &.{
             "lua.c",
         },
         .flags = cflags,
     });
-    lib.linkLibrary(liblua(b, target, optimize));
-    lib.linkSystemLibrary("m");
+    exe.linkLibrary(liblua(b, target, optimize));
+    exe.linkSystemLibrary("m");
     // MYLIBS
-    if (lib.rootModuleTarget().os.tag == .linux) {
-        lib.linkSystemLibrary("dl");
-        lib.linkSystemLibrary("readline");
+    if (exe.rootModuleTarget().os.tag == .linux) {
+        exe.linkSystemLibrary("dl");
+        exe.linkSystemLibrary("readline");
     }
-    lib.linkLibC();
-    return lib;
+    exe.linkLibC();
+    return exe;
 }
 
 const cflags = &.{
