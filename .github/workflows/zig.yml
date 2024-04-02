@@ -1,0 +1,17 @@
+name: Zig Build
+
+on: [push]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.runs-on }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: goto-bus-stop/setup-zig@v2
+
+      - name: Build Summary
+        run: zig build --summary all -freference-trace
